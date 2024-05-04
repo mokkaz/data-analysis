@@ -33,9 +33,13 @@ def home():
     st.header('Begin exploring the data using the menu on the left')
 
 def data_summary():
-    st.write('data_summary')
+    st.header('Statistics of Dataframe')
+    st.write(df.describe())
+
 def data_header():
-    st.write('data_header')
+    st.header('Header of Dataframe')
+    st.write(df.head())
+    
 def scatter_plot():
     st.write('scatter_plot')
 def correlation_plot():
