@@ -20,7 +20,18 @@ options = st.sidebar.radio('Select what you want to display:',
                            ['Home', 'Data Summary', 'Data Header', 'Scatter Plots', 'Correlations', 'Biodiversity Calculator', 'Metrics Statistics'])
 
 def home():
-    st.write('home')
+    st.markdown('This is a web app to allow exploration insights into the environmental impact of financial investments')
+
+    st.page_link("pages/Report.py", label="Report", icon="📋")
+    st.page_link("pages/Tech Report.py", label="Technical Report", icon="📋")
+    st.markdown('''Summary of the Work Done:  
+                - The goal of the research was to assess biodiversity impact for informed investment decisions, focusing on biodiversity metrics for a comprehensive evaluation.  
+                - Diverse datasets were managed, and additional data sources were identified to develop a universal metric for measuring impact.  
+                - The research evaluated assigned datasets, conducted regression analysis using a subset of datasets due to limited data availability, and calculated the margin of error for the results.  
+                - A biodiversity score was developed to quantify the impact of biodiversity on health, nutrition, soil quality, pesticide use, and pest management, emphasizing the importance of biodiversity in traditional medicine availability.  
+                - The study highlighted that higher biodiversity scores correlate with lower risks to a country's biodiversity, showcasing the significance of maintaining biodiversity for various ecological and health-related benefits .''')
+    st.header('Begin exploring the data using the menu on the left')
+
 def data_summary():
     st.write('data_summary')
 def data_header():
