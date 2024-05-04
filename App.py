@@ -39,9 +39,17 @@ def data_summary():
 def data_header():
     st.header('Header of Dataframe')
     st.write(df.head())
-    
+
 def scatter_plot():
-    st.write('scatter_plot')
+    st.markdown('A scatter plot identifies a possible relationship between changes observed in two different sets of variables. It provides a visual and statistical means to test the strength of a relationship between two variables.')
+    col1, col2 = st.columns(2)
+    
+    x_axis_val = col1.selectbox('Select the X-axis', options=df.columns)
+    y_axis_val = col2.selectbox('Select the Y-axis', options=df.columns)
+
+    plot = px.scatter(df, x=x_axis_val, y=y_axis_val)
+    st.plotly_chart(plot, use_container_width=True)
+    
 def correlation_plot():
     st.write('correlation_plot')
 def calc_biodiversity():
