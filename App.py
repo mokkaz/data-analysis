@@ -59,9 +59,30 @@ def correlation_plot():
 
     plot = px.imshow(corr, text_auto=True, aspect="auto")
     st.plotly_chart(plot, use_container_width=True)
-    
+
 def calc_biodiversity():
-    st.write('calc_biodiversity')
+    col1, col2, col3 , col4 = st.columns(4)
+    x1= col1.number_input(label='Agricultural land (% of land area)')
+    x2= col2.number_input(label='Forest area (% of land area)')
+    x3= col3.number_input(label='Wheat Yield (tonnes/km2)')
+    biodiversity_score = -187.3967 - 1.3534*x1 + 10.9765*x2- 32.0721*x3
+    col4.text('Biodiversity Score')
+    if((x1 != 0) or (x2 != 0) or (x3 != 0)):
+        col4.text(biodiversity_score)
+
+    st.divider()
+    col5, col6 = st.columns(2)    
+    col5.write('\n')
+    col5.markdown('You can upload a CSV File with several data point with the metrics corresponding to the calculation of biodiversity.')
+    uploaded_file = col5.file_uploader('Upload the CSV file with four column in the following order: Country or Year, Agricultural land (% of land area),  Forest area (% of land area), Wheat Yield (tonnes/km2)')
+    if(uploaded_file):
+        new_df = pd.read_csv(uploaded_file)
+        if(len(new_df.columns) == 4):
+            col6.markdown('## Biodiveristy Score:')
+
+            new_df['Biodiversity Score'] = -187.3967 - 1.3534*new_df.iloc[:, 1] + 10.9765*new_df.iloc[:, 2]- 32.0721*new_df.iloc[:, 3]
+            col6.write(new_df.iloc[:, [0,-1]])
+            
 def metrics_stats():
     st.write('metrics_stats')
 
