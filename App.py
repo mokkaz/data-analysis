@@ -49,9 +49,17 @@ def scatter_plot():
 
     plot = px.scatter(df, x=x_axis_val, y=y_axis_val)
     st.plotly_chart(plot, use_container_width=True)
-    
+
 def correlation_plot():
-    st.write('correlation_plot')
+    st.markdown('The Pearson correlation measures the strength of the linear relationship between two variables. It has a value between -1 to 1, with a value of -1 meaning a total negative linear correlation, 0 being no correlation, and + 1 meaning a total positive correlation.')
+    corr_selected = st.multiselect('Choose the metrics to have the corresponding correlation heatmap:', 
+                                   options=df.columns,
+                                   default=list(df.columns))
+    corr = df[corr_selected].corr()
+
+    plot = px.imshow(corr, text_auto=True, aspect="auto")
+    st.plotly_chart(plot, use_container_width=True)
+    
 def calc_biodiversity():
     st.write('calc_biodiversity')
 def metrics_stats():
