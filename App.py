@@ -120,6 +120,23 @@ def metrics_stats():
         st.plotly_chart(hist_plot, use_container_width=True)
         st.divider()
 
+    if(selected_page=='Deforestation CO2 Trade Insights'):
+        st.markdown('### Deforestation CO2 Trade Insights:  \nAnalyzed CO2 emissions, as of 2013, due to deforestation in various agricultural product production countries, providing insights into the environmental impact of different food production processes.')
+        df_co2 = pd.read_csv('data/deforestation-co2-trade-by-product.csv')
+        product = st.multiselect(placeholder='Select the product',max_selections=1, options=df_co2.columns.to_list()[3:12], label='Selected Products:', key='coutries_co2_prod', default='cattle_meat')
+        countries = st.multiselect(placeholder='All are Selected. Choose countries for limiting the countries list.', options=df_co2['Entity'].to_list(), label='Selected Countries:', key='coutries_co2')
+        if(len(countries) == 0):
+            df_selected_countries = df_co2
+        else:
+            df_selected_countries = df_co2.loc[df_co2['Entity'].isin(countries)]
+
+        selected_years = df_selected_countries[product[0]].to_list()
+        selected_countries = df_selected_countries['Entity'].to_list()
+        
+        hist_plot = px.histogram(x=selected_countries, y= selected_years, labels={'x':'Countries', 'y':'Deforestation CO2 trade'})
+        st.plotly_chart(hist_plot, use_container_width=True)
+        st.divider()
+
 # Navigation options
 if options == 'Home':
     home()
