@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
+from pandas.api.types import is_numeric_dtype
 
 st.set_page_config(page_title= 'Dashboard', page_icon=":bar_chart:",layout="wide")
 
@@ -61,6 +62,7 @@ def correlation_plot():
     st.plotly_chart(plot, use_container_width=True)
 
 def calc_biodiversity():
+    st.markdown('Following the regression analysis, this score that we have can be used to compare two different countries.  \nHigher scores shows that the country has more forest area and lower wheat yield and agricultural land.Therefore the higher the diversity score, the lower the risk of the country on biodiversity.')
     col1, col2, col3 , col4 = st.columns(4)
     x1= col1.number_input(label='Agricultural land (% of land area)')
     x2= col2.number_input(label='Forest area (% of land area)')
@@ -74,17 +76,22 @@ def calc_biodiversity():
     col5, col6 = st.columns(2)    
     col5.write('\n')
     col5.markdown('You can upload a CSV File with several data point with the metrics corresponding to the calculation of biodiversity.')
-    uploaded_file = col5.file_uploader('Upload the CSV file with four column in the following order: Country or Year, Agricultural land (% of land area),  Forest area (% of land area), Wheat Yield (tonnes/km2)')
+    uploaded_file = col5.file_uploader('The CSV file must be with four column in the following order: Country or Year, Agricultural land (% of land area),  Forest area (% of land area), Wheat Yield (tonnes/km2)')
     if(uploaded_file):
         new_df = pd.read_csv(uploaded_file)
         if(len(new_df.columns) == 4):
-            col6.markdown('## Biodiveristy Score:')
+            if (not new_df.iloc[:, 1:4].apply(pd.to_numeric, errors='coerce').isnull().values.any()):
+                col6.markdown('## Biodiveristy Score:')
 
-            new_df['Biodiversity Score'] = -187.3967 - 1.3534*new_df.iloc[:, 1] + 10.9765*new_df.iloc[:, 2]- 32.0721*new_df.iloc[:, 3]
-            col6.write(new_df.iloc[:, [0,-1]])
+                new_df['Biodiversity Score'] = -187.3967 - 1.3534*new_df.iloc[:, 1] + 10.9765*new_df.iloc[:, 2]- 32.0721*new_df.iloc[:, 3]
+                col6.write(new_df.iloc[:, [0,-1]])
+            else:
+                col6.write(':red[Make sure you uploaded the right file with the right table structure as mentioned!]')
+        else:
+            col6.write(':red[Make sure you uploaded the right file with the right table structure as mentioned!]')
 
 def metrics_stats():
-    selected_page = st.selectbox("Select a page", ["Agricultural Land Data Insights", "Tree Cover Loss Insights", "Deforestation CO2 Trade Insights", "Forest Area Insights", "GHG emissions /kg produced", "Living Planet Index", "Wheat Yields"])
+    selected_page = st.selectbox("Select a metric", ["Agricultural Land Data Insights", "Tree Cover Loss Insights", "Deforestation CO2 Trade Insights", "Forest Area Insights", "GHG emissions /kg produced", "Living Planet Index", "Wheat Yields"])
 
     if(selected_page=='Agricultural Land Data Insights'):
         st.markdown('### Agricultural Land Data Insights:  \nDisplayed trends in agricultural land usage over time for different countries, aiding in understanding agricultural practices globally.  \nCompare the agricultural land percentage across countries to identify regions with significant agricultural activity.')
@@ -102,6 +109,7 @@ def metrics_stats():
         hist_plot = px.histogram(x=selected_countries, y= selected_years.iloc[:,0].to_list(), labels={'x':'Countries', 'y':'Agricultural Land %'})
         st.plotly_chart(hist_plot, use_container_width=True)
         st.divider()
+    
     
     if(selected_page=='Tree Cover Loss Insights'):
         st.markdown('### Tree Cover Loss Insights:  \nDisplayed tree cover loss trends over the years for different countries, highlighting regions experiencing significant deforestation or environmental degradation')
@@ -176,28 +184,35 @@ def metrics_stats():
         
         col1, col2 = st.columns(2)
         country = col1.multiselect(placeholder='Select an Entity.', options=df_LPI['Entity'].drop_duplicates().to_list(), label='Selected Region:', key='country_lpi', default='World', max_selections=1)
-        selected_country = df_LPI.loc[df_LPI['Entity'] == country[0]]
+        
+        if(len(country) == 0):
+            col1.write(':red[Choose an entity from the dropdown list above]')
+        else:
+            selected_country = df_LPI.loc[df_LPI['Entity'] == country[0]]
 
-        x = selected_country['Year']
-        lpi = selected_country['Living Planet Index']
-        upper_ci = selected_country['Upper CI']
-        lower_ci = selected_country['Lower CI']
+            x = selected_country['Year']
+            lpi = selected_country['Living Planet Index']
+            upper_ci = selected_country['Upper CI']
+            lower_ci = selected_country['Lower CI']
 
-        plt.figure(figsize=(5,3))
-        plt.plot(x, lpi, 'g', label='Living Planet Index')
-        plt.plot(x, upper_ci, 'r', label='Upper CI')
-        plt.plot(x, lower_ci, 'y', label='Lower CI')
-        plt.legend()
-        col1.pyplot(plt.gcf())
+            plt.figure(figsize=(5,3))
+            plt.plot(x, lpi, 'g', label='Living Planet Index')
+            plt.plot(x, upper_ci, 'r', label='Upper CI')
+            plt.plot(x, lower_ci, 'y', label='Lower CI')
+            plt.legend()
+            col1.pyplot(plt.gcf())
 
         year = col2.multiselect(placeholder='Select a year.', options=df_LPI['Year'].drop_duplicates().to_list(), label='Selected Year:', key='year_lpi', default=2018, max_selections=1)
-        selected_year = df_LPI.loc[df_LPI['Year'] == year[0]]
+        if(len(year) == 0):
+            col2.write(':red[Choose a year from the dropdown list above]')
+        else:
+            selected_year = df_LPI.loc[df_LPI['Year'] == year[0]]
 
-        countries = selected_year['Entity'].tolist()
-        lpi = selected_year['Living Planet Index'].tolist()
+            countries = selected_year['Entity'].tolist()
+            lpi = selected_year['Living Planet Index'].tolist()
 
-        hist_plot = px.histogram(x=countries, y= lpi, labels={'x':'Countries', 'y':'LPI'})
-        col2.plotly_chart(hist_plot, use_container_width=True)
+            hist_plot = px.histogram(x=countries, y= lpi, labels={'x':'Countries', 'y':'LPI'})
+            col2.plotly_chart(hist_plot, use_container_width=True)
 
         st.divider()
 
@@ -207,27 +222,32 @@ def metrics_stats():
         
         col1, col2 = st.columns(2)
         country = col1.multiselect(placeholder='Select a country.', options=df_LPI['Entity'].drop_duplicates().to_list(), label='Selected Country:', key='country_wy', default='World', max_selections=1)
-        selected_country = df_LPI.loc[df_LPI['Entity'] == country[0]]
+        if(len(country) == 0):
+            col1.write(':red[Choose an entity from the dropdown list above]')
+        else:
+            selected_country = df_LPI.loc[df_LPI['Entity'] == country[0]]
 
-        x = selected_country['Year']
-        wheat_yield = selected_country['Wheat yield']
+            x = selected_country['Year']
+            wheat_yield = selected_country['Wheat yield']
 
-        plt.figure(figsize=(5,3))
-        plt.plot(x, wheat_yield, 'b', label='Wheat Yield')
-        plt.legend()
-        col1.pyplot(plt.gcf())
+            plt.figure(figsize=(5,3))
+            plt.plot(x, wheat_yield, 'b', label='Wheat Yield')
+            plt.legend()
+            col1.pyplot(plt.gcf())
 
         year = col2.multiselect(placeholder='Select a year.', options=df_LPI['Year'].drop_duplicates().to_list(), label='Selected Year:', key='year_wy', default=2018, max_selections=1)
-        selected_year = df_LPI.loc[df_LPI['Year'] == year[0]]
+        if(len(year) == 0):
+            col2.write(':red[Choose a year from the dropdown list above]')
+        else:
+            selected_year = df_LPI.loc[df_LPI['Year'] == year[0]]
 
-        countries = selected_year['Entity'].tolist()
-        wy = selected_year['Wheat yield'].tolist()
+            countries = selected_year['Entity'].tolist()
+            wy = selected_year['Wheat yield'].tolist()
 
-        hist_plot = px.histogram(x=countries, y= wy, labels={'x':'Countries', 'y':'Wheat yield'})
-        col2.plotly_chart(hist_plot, use_container_width=True)
+            hist_plot = px.histogram(x=countries, y= wy, labels={'x':'Countries', 'y':'Wheat yield'})
+            col2.plotly_chart(hist_plot, use_container_width=True)
 
         st.divider()
-
 
 # Navigation options
 if options == 'Home':
@@ -244,3 +264,4 @@ elif options == 'Biodiversity Calculator':
     calc_biodiversity()  
 elif options == 'Metrics Statistics':
     metrics_stats()  
+     
