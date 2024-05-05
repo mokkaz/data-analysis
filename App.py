@@ -201,6 +201,33 @@ def metrics_stats():
 
         st.divider()
 
+    if(selected_page=='Wheat Yields'):
+        st.markdown('### Wheat Yields Insights:  \nHigher wheat yields often require more land for cultivation, potentially leading to increased deforestation and habitat loss.  \n')
+        df_LPI = pd.read_csv('data/wheat-yields.csv')
+        
+        col1, col2 = st.columns(2)
+        country = col1.multiselect(placeholder='Select a country.', options=df_LPI['Entity'].drop_duplicates().to_list(), label='Selected Country:', key='country_wy', default='World', max_selections=1)
+        selected_country = df_LPI.loc[df_LPI['Entity'] == country[0]]
+
+        x = selected_country['Year']
+        wheat_yield = selected_country['Wheat yield']
+
+        plt.figure(figsize=(5,3))
+        plt.plot(x, wheat_yield, 'b', label='Wheat Yield')
+        plt.legend()
+        col1.pyplot(plt.gcf())
+
+        year = col2.multiselect(placeholder='Select a year.', options=df_LPI['Year'].drop_duplicates().to_list(), label='Selected Year:', key='year_wy', default=2018, max_selections=1)
+        selected_year = df_LPI.loc[df_LPI['Year'] == year[0]]
+
+        countries = selected_year['Entity'].tolist()
+        wy = selected_year['Wheat yield'].tolist()
+
+        hist_plot = px.histogram(x=countries, y= wy, labels={'x':'Countries', 'y':'Wheat yield'})
+        col2.plotly_chart(hist_plot, use_container_width=True)
+
+        st.divider()
+
 
 # Navigation options
 if options == 'Home':
