@@ -103,7 +103,22 @@ def metrics_stats():
         st.plotly_chart(hist_plot, use_container_width=True)
         st.divider()
     
-    
+    if(selected_page=='Tree Cover Loss Insights'):
+        st.markdown('### Tree Cover Loss Insights:  \nDisplayed tree cover loss trends over the years for different countries, highlighting regions experiencing significant deforestation or environmental degradation')
+        df_treeloss = pd.read_csv('data/Tree Cover Loss.csv')
+        year = st.slider(min_value=2002, max_value=2021, label='Select Year')
+        countries = st.multiselect(placeholder='All are Selected. Choose countries for limiting the countries list.', options=df_treeloss['Country Name'].to_list(), label='Selected Countries:', key='coutries_treeloss')
+        if(len(countries) == 0):
+            df_selected_countries = df_treeloss
+        else:
+            df_selected_countries = df_treeloss.loc[df_treeloss['Country Name'].isin(countries)]
+        
+        selected_years = df_selected_countries[df_selected_countries.columns[pd.Series(df_selected_countries.columns).str.startswith(str(year))]]
+        selected_countries = df_selected_countries['Country Name'].to_list()
+        
+        hist_plot = px.histogram(x=selected_countries, y= selected_years.iloc[:,0].to_list(), labels={'x':'Countries', 'y':'Tree Cover Loss'})
+        st.plotly_chart(hist_plot, use_container_width=True)
+        st.divider()
 
 # Navigation options
 if options == 'Home':
