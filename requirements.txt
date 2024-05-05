@@ -2,3 +2,5 @@ streamlit
 pandas
 matplotlib
 plotly
+streamlit_pdf_viewer
+
