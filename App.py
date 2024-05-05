@@ -154,6 +154,22 @@ def metrics_stats():
         st.plotly_chart(hist_plot, use_container_width=True)
         st.divider()
 
+    if(selected_page=='GHG emissions /kg produced'):
+        st.markdown('### GHG emissions per kilogram produced Insights:  \nEvaluated the greenhouse gas (GHG) emissions per kilogram, as of 2010, of various food products, providing insights into the environmental impact of food production processes.')
+        df_forestarea = pd.read_csv('data/GHG emissions per kilogram produced.csv')
+        food_products = st.multiselect(placeholder='All are Selected. Choose food products for limiting the food products list.', options=df_forestarea['Entity'].to_list(), label='Selected Food Products:', key='forest_countries')
+        if(len(food_products) == 0):
+            df_selected_food_products = df_forestarea
+        else:
+            df_selected_food_products = df_forestarea.loc[df_forestarea['Entity'].isin(food_products)]
+        
+        selected_col = df_selected_food_products['GHG emissions per kilogram (Poore & Nemecek, 2018)'].to_list()
+        selected_food_products = df_selected_food_products['Entity'].to_list()
+        
+        hist_plot = px.histogram(x=selected_food_products, y= selected_col, labels={'x':'Food Products', 'y':'GHG/kg'})
+        st.plotly_chart(hist_plot, use_container_width=True)
+        st.divider()
+
 # Navigation options
 if options == 'Home':
     home()
