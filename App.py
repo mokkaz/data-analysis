@@ -136,12 +136,14 @@ def metrics_stats():
             df_selected_countries = df_co2
         else:
             df_selected_countries = df_co2.loc[df_co2['Entity'].isin(countries)]
-
-        selected_years = df_selected_countries[product[0]].to_list()
-        selected_countries = df_selected_countries['Entity'].to_list()
-        
-        hist_plot = px.histogram(x=selected_countries, y= selected_years, labels={'x':'Countries', 'y':'Deforestation CO2 trade'})
-        st.plotly_chart(hist_plot, use_container_width=True)
+        if(len(product) == 0):
+            st.write(':red[Please choose a product from the dropdown list above.]')
+        else:
+            selected_products = df_selected_countries[product[0]].to_list()
+            selected_countries = df_selected_countries['Entity'].to_list()
+            
+            hist_plot = px.histogram(x=selected_countries, y= selected_products, labels={'x':'Countries', 'y':'Deforestation CO2 trade'})
+            st.plotly_chart(hist_plot, use_container_width=True)
         st.divider()
 
     if(selected_page=='Forest Area Insights'):
