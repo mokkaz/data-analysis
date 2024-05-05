@@ -137,6 +137,23 @@ def metrics_stats():
         st.plotly_chart(hist_plot, use_container_width=True)
         st.divider()
 
+    if(selected_page=='Forest Area Insights'):
+        st.markdown('### Forest Area Insights:  \nIdentified countries or regions with significant fluctuations in forest area coverage, highlighting areas of concern for conservation efforts.')
+        df_forestarea = pd.read_csv('data/Forest Area.csv')
+        year = st.slider(min_value=1990, max_value=2021, label='Select Year')
+        countries = st.multiselect(placeholder='All are Selected. Choose countries for limiting the countries list.', options=df_forestarea['Country Name'].to_list(), label='Selected Countries:', key='forest_countries')
+        if(len(countries) == 0):
+            df_selected_countries = df_forestarea
+        else:
+            df_selected_countries = df_forestarea.loc[df_forestarea['Country Name'].isin(countries)]
+        
+        selected_years = df_selected_countries[df_selected_countries.columns[pd.Series(df_selected_countries.columns).str.startswith(str(year))]]
+        selected_countries = df_selected_countries['Country Name'].to_list()
+        
+        hist_plot = px.histogram(x=selected_countries, y= selected_years.iloc[:,0].to_list(), labels={'x':'Countries', 'y':'Forest Area %'})
+        st.plotly_chart(hist_plot, use_container_width=True)
+        st.divider()
+
 # Navigation options
 if options == 'Home':
     home()
