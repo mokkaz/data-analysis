@@ -82,9 +82,28 @@ def calc_biodiversity():
 
             new_df['Biodiversity Score'] = -187.3967 - 1.3534*new_df.iloc[:, 1] + 10.9765*new_df.iloc[:, 2]- 32.0721*new_df.iloc[:, 3]
             col6.write(new_df.iloc[:, [0,-1]])
-            
+
 def metrics_stats():
-    st.write('metrics_stats')
+    selected_page = st.selectbox("Select a page", ["Agricultural Land Data Insights", "Tree Cover Loss Insights", "Deforestation CO2 Trade Insights", "Forest Area Insights", "GHG emissions /kg produced", "Living Planet Index", "Wheat Yields"])
+
+    if(selected_page=='Agricultural Land Data Insights'):
+        st.markdown('### Agricultural Land Data Insights:  \nDisplayed trends in agricultural land usage over time for different countries, aiding in understanding agricultural practices globally.  \nCompare the agricultural land percentage across countries to identify regions with significant agricultural activity.')
+        df_agri = pd.read_csv('data/Agricultural Land.csv')
+        year = st.slider(min_value=1961, max_value=2021, label='Select Year')
+        countries = st.multiselect(placeholder='All are Selected. Choose countries for limiting the countries list.', options=df_agri['Country Name'].to_list(), label='Selected Countries:', key='agri_countries')
+        if(len(countries) == 0):
+            df_selected_countries = df_agri
+        else:
+            df_selected_countries = df_agri.loc[df_agri['Country Name'].isin(countries)]
+        
+        selected_years = df_selected_countries[df_selected_countries.columns[pd.Series(df_selected_countries.columns).str.startswith(str(year))]]
+        selected_countries = df_selected_countries['Country Name'].to_list()
+        
+        hist_plot = px.histogram(x=selected_countries, y= selected_years.iloc[:,0].to_list(), labels={'x':'Countries', 'y':'Agricultural Land %'})
+        st.plotly_chart(hist_plot, use_container_width=True)
+        st.divider()
+    
+    
 
 # Navigation options
 if options == 'Home':
