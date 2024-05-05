@@ -170,6 +170,38 @@ def metrics_stats():
         st.plotly_chart(hist_plot, use_container_width=True)
         st.divider()
 
+    if(selected_page=='Living Planet Index'):
+        st.markdown('### Living Planet Index Insights:  \nTracks the variations in vertebrate populations of various species globally from 1970 to the most recent year available, offering a comprehensive view of biodiversity changes.  \n')
+        df_LPI = pd.read_csv('data/global-living-planet-index.csv')
+        
+        col1, col2 = st.columns(2)
+        country = col1.multiselect(placeholder='Select an Entity.', options=df_LPI['Entity'].drop_duplicates().to_list(), label='Selected Region:', key='country_lpi', default='World', max_selections=1)
+        selected_country = df_LPI.loc[df_LPI['Entity'] == country[0]]
+
+        x = selected_country['Year']
+        lpi = selected_country['Living Planet Index']
+        upper_ci = selected_country['Upper CI']
+        lower_ci = selected_country['Lower CI']
+
+        plt.figure(figsize=(5,3))
+        plt.plot(x, lpi, 'g', label='Living Planet Index')
+        plt.plot(x, upper_ci, 'r', label='Upper CI')
+        plt.plot(x, lower_ci, 'y', label='Lower CI')
+        plt.legend()
+        col1.pyplot(plt.gcf())
+
+        year = col2.multiselect(placeholder='Select a year.', options=df_LPI['Year'].drop_duplicates().to_list(), label='Selected Year:', key='year_lpi', default=2018, max_selections=1)
+        selected_year = df_LPI.loc[df_LPI['Year'] == year[0]]
+
+        countries = selected_year['Entity'].tolist()
+        lpi = selected_year['Living Planet Index'].tolist()
+
+        hist_plot = px.histogram(x=countries, y= lpi, labels={'x':'Countries', 'y':'LPI'})
+        col2.plotly_chart(hist_plot, use_container_width=True)
+
+        st.divider()
+
+
 # Navigation options
 if options == 'Home':
     home()
